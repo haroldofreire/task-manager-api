@@ -98,4 +98,18 @@ RSpec.describe 'Users API', type: :request do
     end #fim do context 'when the request params are invalid'
   end #fim do describe 'PUT /users/:id'
 
+describe 'DELETE /users/:id' do
+  before do
+    headers = { 'Accept' => 'application/vnd.taskmanager.v1' }
+    delete "/users/#{user_id}", params: {}, headers: {} 
+  end
+  it 'returns status code 204' do
+    expect(response).to   have_http_status(204)
+  end
+
+  it 'remove from users database' do
+    expect(User.find_by(id: user.id)).to be_nil
+  end
+end
+
 end #FIM DO RSpec.describe 'Users API'
