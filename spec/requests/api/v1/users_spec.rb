@@ -29,8 +29,7 @@ RSpec.describe 'Users API', type: :request do
         expect(response).to have_http_status(404)
       end
     end
-    
-  end
+  end #fim do describe 'GET /users/:id'
 
 
   describe 'POST /users' do
@@ -52,7 +51,7 @@ RSpec.describe 'Users API', type: :request do
         expect(user_response[:email]).to eq(user_params[:email])
       end
 
-    end
+    end #fim do context 'when the request params are valid'
 
     context 'when the request params are invalid' do
       let(:user_params) { attributes_for(:user, email: 'invalid_email@') }
@@ -61,14 +60,42 @@ RSpec.describe 'Users API', type: :request do
         expect(response).to have_http_status(422)
       end
 
-      it 'returns the json data for the erros' do
+      it 'returns the json data fo the erros' do
         user_response = JSON.parse(response.body, symbolize_names: true)
         expect(user_response).to have_key(:errors) 
-      end
+      end 
+    end #fim do context 'when the request params are invalid'
+  end #fim do describ 'POST /users'
 
+  describe 'PUT /users/:id' do
+    before do
+      headers = { 'Accept' => 'application/vnd.taskmanager.v1' }
+      put "/users/#{user_id}", params: {user: user_params}, headers: headers
     end
 
+    context 'when the request params are valid' do
+      let(:user_params) { { email: 'new_email@taskmanager.com' } }
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+      it 'returns the json data for the update user' do
+        user_reponse = JSON.parse(response.body, symbolize_names: true)
+        expect(user_reponse[:email]).to eq(user_params[:email])
+      end
+    end
+    
+    context 'when the request params are invalid' do
+      let(:user_params) { { email: 'invalid_email@' } }
 
-  end
+      it'returns status code 422' do
+        expect(response).to have_http_status(422)
+      end
 
-end
+      it 'returns the json data fo the erros' do
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        expect(user_response).to have_key(:errors) 
+      end 
+    end #fim do context 'when the request params are invalid'
+  end #fim do describe 'PUT /users/:id'
+
+end #FIM DO RSpec.describe 'Users API'
