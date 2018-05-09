@@ -6,13 +6,13 @@ RSpec.describe 'Task API' do
   let!(:user) { create(:user)}
   let(:headers) do
     {
-      'Accept' => 'application/vnd.taskmanager.v2',
       'Content-Type' => Mime[:json].to_s,
+      'Accept' => 'application/vnd.taskmanager.v2',
       'Authorization' => user.auth_token
     }
   end
 
-  describe "GET /task" do
+  describe "GET /tasks" do
     before do
       create_list(:task, 5, user_id: user.id)
       get '/tasks', params: {}, headers: headers
@@ -23,7 +23,7 @@ RSpec.describe 'Task API' do
     end
 
     it 'returns 5 tasks from database' do
-      expect(json_body[:tasks].count).to eq(5)
+      expect(json_body[:data].count).to eq(5)
     end
   end
 
