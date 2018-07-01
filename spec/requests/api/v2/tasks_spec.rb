@@ -1,25 +1,29 @@
 require 'rails_helper'
 
 RSpec.describe 'Task API' do
-  before { host! 'api.taskmanager.test'}
-
-  let!(:user) { create(:user)}
+  
+  let!(:user) { create(:user) }
+  let!(:auth_data) { user.create_new_auth_token }
   let(:headers) do
     {
       'Content-Type' => Mime[:json].to_s,
       'Accept' => 'application/vnd.taskmanager.v2',
-      'Authorization' => user.auth_token
+      'access-token' => auth_data['access-token'],
+      'uid' => auth_data['uid'],
+      'client' => auth_data['client']
     }
   end
 
+  before { host! 'api.taskmanager.test'}
+
   describe "GET /tasks" do
-    context "When no filter params is sent " do
+    context 'When no filter param is sent' do
       before do
         create_list(:task, 5, user_id: user.id)
         get '/tasks', params: {}, headers: headers
       end
       
-      it 'returns tatus code 200' do
+      it 'returns status code 200' do
         expect(response).to have_http_status(200) 
       end
   
@@ -28,11 +32,12 @@ RSpec.describe 'Task API' do
       end  
     end
     
-    context "when filter and sorting params is sent" do
-      let!(:notebook_task_1){ create(:task, title: 'Check if the notebook is broken', user_id: user.id)}
-      let!(:notebook_task_2){ create(:task, title: 'Buy a new notebook', user_id: user.id)}
-      let!(:other_task_1){ create(:task, title: 'Fix the door', user_id: user.id)}
-      let!(:other_task_2){ create(:task, title: 'Buy a new car', user_id: user.id)}
+
+    context 'when filter and sorting params are sent' do
+      let!(:notebook_task_1) { create(:task, title: 'Check if the notebook is broken', user_id: user.id) }
+      let!(:notebook_task_2) { create(:task, title: 'Buy a new notebook', user_id: user.id) }
+      let!(:other_task_1) { create(:task, title: 'Fix the door', user_id: user.id) }
+      let!(:other_task_2) { create(:task, title: 'Buy a new car', user_id: user.id) }
 
       before do
         get '/tasks?q[title_cont]=note&q[s]=title+ASC', params: {}, headers: headers
@@ -47,12 +52,12 @@ RSpec.describe 'Task API' do
     
   end
 
-  describe "GET /tasks/:id" do
+  describe 'GET /tasks/:id' do
     let(:task) { create(:task, user_id: user.id) }
 
     before { get "/tasks/#{task.id}", params: {}, headers: headers }
 
-    it 'returns status json for task' do
+    it 'returns status code 200' do
       expect(response).to have_http_status(200)
     end
 
